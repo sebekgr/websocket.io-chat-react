@@ -6,7 +6,7 @@ import MessageForm from './components/MessageForm';
 import MessageList from './components/MessageList';
 import UsersList from './components/UsersList';
 import UserForm from './components/UserForm';
-const socket = io('http://localhost:9000');
+const socket = io('http://localhost:9000'); //apply your server address
 
 class App extends Component {
   constructor(props) {
@@ -22,6 +22,16 @@ class App extends Component {
   componentDidMount() {
     socket.on('message', message => this.messageReceive(message));
     socket.on('update', ({users}) => this.chatUpdate(users));
+    socket.on('deleteMsg', msg => this.deleteMsgRecieve(msg));
+  }
+
+  deleteMsg(prop) {
+    socket.emit('deleteMsg', prop);
+  }
+
+  deleteMsgRecieve(prop) {
+    const updatemsg = this.state.messages.filter(test => test.time !== prop);
+    this.setState({messages: updatemsg});
   }
 
   messageReceive(message) {
@@ -64,7 +74,7 @@ class App extends Component {
         <div className="AppBody">
           <UsersList users={this.state.users}/>
           <div className="MessageWrapper">
-            <MessageList messages={this.state.messages}/>
+            <MessageList messages={this.state.messages} name={this.state.name} deleteMsg={msg => this.deleteMsg(msg)}/>
             <MessageForm onMessageSubmit={message => this.handleMessageSubmit(message)} name={this.state.name} />
           </div>
         </div>

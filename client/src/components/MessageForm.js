@@ -9,10 +9,11 @@ class MessageForm extends Component {
 
     handleSubmit(e) {
         e.preventDefault();
-
+        const t = new Date();
         const message = {
             from : this.props.name,
-            text: this.state.text
+            text: this.state.text,
+            time: t.toLocaleTimeString()
         };
         this.props.onMessageSubmit(message);
         this.setState({ text: ''});

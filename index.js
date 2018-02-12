@@ -10,13 +10,14 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 app.get('/', (req, res) => {
+    //source path 'index' for your client app/view
     res.sendFile(__dirname + '/index.html');
 })
 
-io.on('connection', (socket) => {
+io.on('connection', socket => {
     
     //update list of users and emit full list for others
-    socket.on('join', (name) => {
+    socket.on('join', name => {
         userService.addUser({
             id: socket.id,
             name
@@ -28,13 +29,20 @@ io.on('connection', (socket) => {
 
 
     //sending msg from user
-    socket.on('message', (message) => {
+    socket.on('message', message => {
         const {name} = userService.getUserById(socket.id);
         socket.broadcast.emit('message', {
             text: message.text,
-            from: name
+            from: name,
+            time: message.time
         })
     });
+
+    //deleting msg
+    socket.on('deleteMsg', msg => {
+		io.emit('deleteMsg', msg);
+
+	});
 
 
     //if user disconnect
@@ -48,4 +56,6 @@ io.on('connection', (socket) => {
 
 })
 
-server.listen(9000, () => { console.log("server run at 9000")});
+const port = process.env.PORT || 9000;
+
+server.listen(port, () => { console.log(port)});
